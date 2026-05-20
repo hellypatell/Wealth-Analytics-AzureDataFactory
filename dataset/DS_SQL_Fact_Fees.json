@@ -1,0 +1,55 @@
+{
+	"name": "DS_SQL_Fact_Fees",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_WealthDWH",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DWH"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "FeeKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "FeeID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "AccountKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DateKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "FeeType",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Amount",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "LoadDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Fact_Fees"
+		}
+	}
+}

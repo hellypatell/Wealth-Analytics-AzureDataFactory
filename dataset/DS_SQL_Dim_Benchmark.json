@@ -1,0 +1,43 @@
+{
+	"name": "DS_SQL_Dim_Benchmark",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_WealthDWH",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DWH"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "BenchmarkKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "BenchmarkCode",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Description",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Currency",
+				"type": "nvarchar"
+			},
+			{
+				"name": "CreatedDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Dim_Benchmark"
+		}
+	}
+}

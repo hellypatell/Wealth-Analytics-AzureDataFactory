@@ -1,0 +1,47 @@
+{
+	"name": "DS_SQL_Fact_BenchmarkPrice",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_WealthDWH",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DWH"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "BenchmarkPriceKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "BenchmarkKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DateKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "IndexValue",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 4
+			},
+			{
+				"name": "LoadDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Fact_BenchmarkPrices"
+		}
+	}
+}

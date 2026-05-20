@@ -1,0 +1,55 @@
+{
+	"name": "DS_SQL_Fact_Cashflow",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_WealthDWH",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DWH"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "CashflowKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CashflowID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "AccountKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DateKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CashflowType",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Amount",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "LoadDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Fact_Cashflows"
+		}
+	}
+}

@@ -1,0 +1,63 @@
+{
+	"name": "DS_SQL_Dim_Security",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_WealthDWH",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DWH"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "SecurityKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "SecurityID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Ticker",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SecurityName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "AssetClass",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Sector",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Currency",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Region",
+				"type": "nvarchar"
+			},
+			{
+				"name": "AssetClassGroup",
+				"type": "nvarchar"
+			},
+			{
+				"name": "CreatedDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Dim_Security"
+		}
+	}
+}

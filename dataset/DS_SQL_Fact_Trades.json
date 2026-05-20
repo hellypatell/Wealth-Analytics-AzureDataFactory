@@ -1,0 +1,77 @@
+{
+	"name": "DS_SQL_Fact_Trades",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_WealthDWH",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DWH"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "TradeKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "TradeID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "AccountKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "SecurityKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "TradeDateKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "SettleDateKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Side",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Price",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 4
+			},
+			{
+				"name": "Quantity",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 4
+			},
+			{
+				"name": "Amount",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "LoadDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Fact_Trades"
+		}
+	}
+}

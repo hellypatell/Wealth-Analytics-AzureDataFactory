@@ -1,0 +1,64 @@
+{
+	"name": "DS_SQL_Dim_Client",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_WealthDWH",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DWH"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "ClientKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "ClientID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ClientName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Segment",
+				"type": "nvarchar"
+			},
+			{
+				"name": "RiskProfile",
+				"type": "nvarchar"
+			},
+			{
+				"name": "PrimaryAdvisorID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ClientSince",
+				"type": "date"
+			},
+			{
+				"name": "Country",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ClientTenureYears",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CreatedDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Dim_Client"
+		}
+	}
+}

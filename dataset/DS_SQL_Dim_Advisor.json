@@ -1,0 +1,56 @@
+{
+	"name": "DS_SQL_Dim_Advisor",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_WealthDWH",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DWH"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "AdvisorKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "AdvisorID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "AdvisorName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Region",
+				"type": "nvarchar"
+			},
+			{
+				"name": "JoinDate",
+				"type": "date"
+			},
+			{
+				"name": "ExperienceYears",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "SeniorityLevel",
+				"type": "nvarchar"
+			},
+			{
+				"name": "CreatedDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Dim_Advisor"
+		}
+	}
+}
