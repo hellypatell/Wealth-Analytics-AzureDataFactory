@@ -27,7 +27,7 @@
 			"value": "wealthanalytics-sql-server.database.windows.net"
 		},
 		"LS_WealthStaging_properties_typeProperties_database": {
-			"value": "WealthDWH"
+			"value": "WealthStaging"
 		},
 		"LS_WealthStaging_properties_typeProperties_userName": {
 			"value": "adminuser"
