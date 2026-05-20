@@ -1,0 +1,46 @@
+{
+	"name": "DS_SQL_Stg_Fees",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_WealthStaging",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Staging"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "FeeID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "AccountID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "FeeDate",
+				"type": "nvarchar"
+			},
+			{
+				"name": "FeeType",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Amount",
+				"type": "nvarchar"
+			},
+			{
+				"name": "LoadDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Stg_Fees"
+		}
+	}
+}

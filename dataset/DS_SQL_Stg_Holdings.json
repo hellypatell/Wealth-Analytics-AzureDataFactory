@@ -1,0 +1,46 @@
+{
+	"name": "DS_SQL_Stg_Holdings",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_WealthStaging",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Staging"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "AccountID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SecurityID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Quantity",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ValuationDate",
+				"type": "nvarchar"
+			},
+			{
+				"name": "MarketValue",
+				"type": "nvarchar"
+			},
+			{
+				"name": "LoadDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Stg_Holdings"
+		}
+	}
+}

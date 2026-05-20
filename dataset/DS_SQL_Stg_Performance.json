@@ -1,0 +1,54 @@
+{
+	"name": "DS_SQL_Stg_Performance",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_WealthStaging",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Staging"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "AccountID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "MonthStart",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ReturnPct",
+				"type": "nvarchar"
+			},
+			{
+				"name": "BenchmarkCode",
+				"type": "nvarchar"
+			},
+			{
+				"name": "BenchmarkReturnPct",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ExcessReturnPct",
+				"type": "nvarchar"
+			},
+			{
+				"name": "CumulativeReturnPct",
+				"type": "nvarchar"
+			},
+			{
+				"name": "LoadDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Stg_Performances"
+		}
+	}
+}

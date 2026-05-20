@@ -1,0 +1,39 @@
+{
+	"name": "DS_CSV_Prices",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_BlobStorage",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "CSV"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Prices.csv",
+				"container": "wealth-raw-data"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "SecurityID",
+				"type": "String"
+			},
+			{
+				"name": "PriceDate",
+				"type": "String"
+			},
+			{
+				"name": "ClosePrice",
+				"type": "String"
+			}
+		]
+	}
+}

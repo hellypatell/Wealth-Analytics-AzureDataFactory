@@ -1,0 +1,47 @@
+{
+	"name": "DS_CSV_Advisor",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_BlobStorage",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "CSV"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Advisors.csv",
+				"container": "wealth-raw-data"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "AdvisorID",
+				"type": "String"
+			},
+			{
+				"name": "AdvisorName",
+				"type": "String"
+			},
+			{
+				"name": "Region",
+				"type": "String"
+			},
+			{
+				"name": "JoinDate",
+				"type": "String"
+			},
+			{
+				"name": "ExperienceYears",
+				"type": "String"
+			}
+		]
+	}
+}

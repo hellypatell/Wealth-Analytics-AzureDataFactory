@@ -1,0 +1,55 @@
+{
+	"name": "DS_CSV_Clients",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_BlobStorage",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "CSV"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Clients.csv",
+				"container": "wealth-raw-data"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "ClientID",
+				"type": "String"
+			},
+			{
+				"name": "ClientName",
+				"type": "String"
+			},
+			{
+				"name": "Segment",
+				"type": "String"
+			},
+			{
+				"name": "RiskProfile",
+				"type": "String"
+			},
+			{
+				"name": "PrimaryAdvisorID",
+				"type": "String"
+			},
+			{
+				"name": "ClientSince",
+				"type": "String"
+			},
+			{
+				"name": "Country",
+				"type": "String"
+			}
+		]
+	}
+}

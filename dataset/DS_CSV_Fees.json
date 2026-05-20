@@ -1,0 +1,47 @@
+{
+	"name": "DS_CSV_Fees",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_BlobStorage",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "CSV"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Fees.csv",
+				"container": "wealth-raw-data"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "FeeID",
+				"type": "String"
+			},
+			{
+				"name": "AccountID",
+				"type": "String"
+			},
+			{
+				"name": "FeeDate",
+				"type": "String"
+			},
+			{
+				"name": "FeeType",
+				"type": "String"
+			},
+			{
+				"name": "Amount",
+				"type": "String"
+			}
+		]
+	}
+}

@@ -1,0 +1,59 @@
+{
+	"name": "DS_SQL_Stg_Clients",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_WealthStaging",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Staging"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "ClientID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ClientName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Segment",
+				"type": "nvarchar"
+			},
+			{
+				"name": "RiskProfile",
+				"type": "nvarchar"
+			},
+			{
+				"name": "PrimaryAdvisorID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ClientSince",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Country",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ClientTenureYears",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "LoadDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Stg_Clients"
+		}
+	}
+}

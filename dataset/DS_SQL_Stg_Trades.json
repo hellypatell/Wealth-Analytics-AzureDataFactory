@@ -1,0 +1,62 @@
+{
+	"name": "DS_SQL_Stg_Trades",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_WealthStaging",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Staging"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "TradeID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "AccountID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SecurityID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "TradeDate",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SettleDate",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Side",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Price",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Quantity",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Amount",
+				"type": "nvarchar"
+			},
+			{
+				"name": "LoadDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Stg_Trades"
+		}
+	}
+}
