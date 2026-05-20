@@ -6,26 +6,71 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "DS_CSV_Accounts",
+						"referenceName": "DS_SQL_Stg_Accounts",
 						"type": "DatasetReference"
 					},
 					"name": "SourceAccounts"
 				}
 			],
-			"sinks": [],
-			"transformations": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Dim_Account",
+						"type": "DatasetReference"
+					},
+					"name": "SinkAccounts"
+				}
+			],
+			"transformations": [
+				{
+					"name": "AccountAgeDays"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          AccountID as string,",
 				"          ClientID as string,",
 				"          AccountType as string,",
-				"          OpenDate as string,",
+				"          OpenDate as date,",
 				"          BaseCurrency as string,",
-				"          Status as string",
+				"          Status as string,",
+				"          LoadDate as timestamp",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> SourceAccounts"
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceAccounts",
+				"SourceAccounts derive(AccountAgeDays = toInteger(   (currentTimestamp() - toTimestamp(toString(OpenDate), 'yyyy-MM-dd')) / 86400000 )) ~> AccountAgeDays",
+				"AccountAgeDays sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          AccountKey as integer,",
+				"          AccountID as string,",
+				"          ClientID as string,",
+				"          AccountType as string,",
+				"          OpenDate as date,",
+				"          BaseCurrency as string,",
+				"          Status as string,",
+				"          AccountAgeDays as integer,",
+				"          CreatedDate as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          AccountID,",
+				"          ClientID,",
+				"          AccountType,",
+				"          OpenDate,",
+				"          BaseCurrency,",
+				"          Status,",
+				"          AccountAgeDays",
+				"     )) ~> SinkAccounts"
 			]
 		}
 	}
