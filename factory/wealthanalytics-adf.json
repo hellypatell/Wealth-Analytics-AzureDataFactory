@@ -1,0 +1,15 @@
+{
+	"name": "wealthanalytics-adf",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Enabled",
+			"editable": true
+		}
+	},
+	"location": "southeastasia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "2e36aebb-c010-4a8b-8fc9-88539817c20c",
+		"tenantId": "eed5c348-0a2d-4f3f-a2b0-dfbe71cde1b6"
+	}
+}
