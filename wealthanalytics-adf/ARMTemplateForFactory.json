@@ -2857,6 +2857,87 @@
 				"[concat(variables('factoryId'), '/datasets/DS_SQL_Stg_Accounts')]",
 				"[concat(variables('factoryId'), '/datasets/DS_SQL_Dim_Account')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Load_Dim_Advisor')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Stg_Advisors",
+								"type": "DatasetReference"
+							},
+							"name": "SourceAdvisor"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Advisor",
+								"type": "DatasetReference"
+							},
+							"name": "SinkAdvisor"
+						}
+					],
+					"transformations": [
+						{
+							"name": "SeniorityLevel"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          AdvisorID as string,",
+						"          AdvisorName as string,",
+						"          Region as string,",
+						"          JoinDate as date,",
+						"          ExperienceYears as integer,",
+						"          SeniorityLevel as string,",
+						"          LoadDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourceAdvisor",
+						"SourceAdvisor derive(SeniorityLevel = iif(ExperienceYears >= 10, 'Senior',    iif(ExperienceYears >= 5, 'Mid-Level',      'Junior'))) ~> SeniorityLevel",
+						"SeniorityLevel sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          AdvisorKey as integer,",
+						"          AdvisorID as string,",
+						"          AdvisorName as string,",
+						"          Region as string,",
+						"          JoinDate as date,",
+						"          ExperienceYears as integer,",
+						"          SeniorityLevel as string,",
+						"          CreatedDate as timestamp",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          AdvisorID,",
+						"          AdvisorName,",
+						"          Region,",
+						"          JoinDate,",
+						"          ExperienceYears,",
+						"          SeniorityLevel",
+						"     )) ~> SinkAdvisor"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Stg_Advisors')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Dim_Advisor')]"
+			]
 		}
 	]
 }
