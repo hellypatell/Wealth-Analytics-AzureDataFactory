@@ -1,0 +1,71 @@
+{
+	"name": "DF_Load_Dim_Benchmark",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Stg_Benchmarks",
+						"type": "DatasetReference"
+					},
+					"name": "SourceBenchmarkStg"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Dim_Benchmark",
+						"type": "DatasetReference"
+					},
+					"name": "SinkBenchmark"
+				}
+			],
+			"transformations": [
+				{
+					"name": "AggBenchmarks"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          BenchmarkCode as string,",
+				"          Description as string,",
+				"          Currency as string,",
+				"          IndexValueDate as string,",
+				"          IndexValue as string,",
+				"          LoadDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceBenchmarkStg",
+				"SourceBenchmarkStg aggregate(groupBy(BenchmarkCode,",
+				"          Description,",
+				"          Currency),",
+				"     BenchmarkCodeAgg = first(BenchmarkCode)) ~> AggBenchmarks",
+				"AggBenchmarks sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          BenchmarkKey as integer,",
+				"          BenchmarkCode as string,",
+				"          Description as string,",
+				"          Currency as string,",
+				"          CreatedDate as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          BenchmarkCode,",
+				"          Description,",
+				"          Currency",
+				"     )) ~> SinkBenchmark"
+			]
+		}
+	}
+}
