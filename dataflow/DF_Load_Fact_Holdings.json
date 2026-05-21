@@ -43,13 +43,13 @@
 					"name": "LookupAccounts"
 				},
 				{
-					"name": "LookupSecurity"
-				},
-				{
 					"name": "Select"
 				},
 				{
 					"name": "AlterRow"
+				},
+				{
+					"name": "lookupSecurity"
 				}
 			],
 			"scriptLines": [
@@ -102,11 +102,7 @@
 				"     multiple: false,",
 				"     pickup: 'any',",
 				"     broadcast: 'auto')~> LookupAccounts",
-				"LookupAccounts, SourceSecurity lookup(SourceHoldings@SecurityID == SourceSecurity@SecurityID,",
-				"     multiple: false,",
-				"     pickup: 'any',",
-				"     broadcast: 'auto')~> LookupSecurity",
-				"LookupSecurity select(mapColumn(",
+				"lookupSecurity select(mapColumn(",
 				"          Quantity,",
 				"          MarketValue,",
 				"          LoadDate,",
@@ -117,6 +113,10 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> Select",
 				"Select alterRow(insertIf(true())) ~> AlterRow",
+				"LookupAccounts, SourceSecurity lookup(SourceHoldings@SecurityID == SourceSecurity@SecurityID,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookupSecurity",
 				"AlterRow sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
