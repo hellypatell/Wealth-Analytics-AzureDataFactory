@@ -337,6 +337,159 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DF_Load_Fact_Holdings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Stg_Holdings",
+								"type": "DatasetReference"
+							},
+							"name": "SourceHoldings"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Account",
+								"type": "DatasetReference"
+							},
+							"name": "SourceAccounts"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Security",
+								"type": "DatasetReference"
+							},
+							"name": "SourceSecurity"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Fact_Holdings",
+								"type": "DatasetReference"
+							},
+							"name": "SinkHoldings"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DervideColumn"
+						},
+						{
+							"name": "LookupAccounts"
+						},
+						{
+							"name": "Select"
+						},
+						{
+							"name": "AlterRow"
+						},
+						{
+							"name": "lookupSecurity"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          AccountID as string,",
+						"          SecurityID as string,",
+						"          Quantity as string,",
+						"          ValuationDate as string,",
+						"          MarketValue as string,",
+						"          LoadDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourceHoldings",
+						"source(output(",
+						"          AccountKey as integer,",
+						"          AccountID as string,",
+						"          ClientID as string,",
+						"          AccountType as string,",
+						"          OpenDate as date,",
+						"          BaseCurrency as string,",
+						"          Status as string,",
+						"          AccountAgeDays as integer,",
+						"          CreatedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourceAccounts",
+						"source(output(",
+						"          SecurityKey as integer,",
+						"          SecurityID as string,",
+						"          Ticker as string,",
+						"          SecurityName as string,",
+						"          AssetClass as string,",
+						"          Sector as string,",
+						"          Currency as string,",
+						"          Region as string,",
+						"          AssetClassGroup as string,",
+						"          CreatedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourceSecurity",
+						"SourceHoldings derive(DateKey = toInteger(toString(toDate(ValuationDate), 'yyyyMMdd')),",
+						"          LoadDate = currentTimestamp()) ~> DervideColumn",
+						"DervideColumn, SourceAccounts lookup(SourceHoldings@AccountID == SourceAccounts@AccountID,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> LookupAccounts",
+						"lookupSecurity select(mapColumn(",
+						"          Quantity,",
+						"          MarketValue,",
+						"          LoadDate,",
+						"          DateKey,",
+						"          AccountKey,",
+						"          SecurityKey",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> Select",
+						"Select alterRow(insertIf(true())) ~> AlterRow",
+						"LookupAccounts, SourceSecurity lookup(SourceHoldings@SecurityID == SourceSecurity@SecurityID,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> lookupSecurity",
+						"AlterRow sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          HoldingKey as integer,",
+						"          AccountKey as integer,",
+						"          SecurityKey as integer,",
+						"          DateKey as integer,",
+						"          Quantity as decimal(18,4),",
+						"          MarketValue as decimal(18,2),",
+						"          LoadDate as timestamp",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          AccountKey,",
+						"          SecurityKey,",
+						"          DateKey,",
+						"          Quantity,",
+						"          MarketValue,",
+						"          LoadDate",
+						"     )) ~> SinkHoldings"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/PL_Staging_To_Dim')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
