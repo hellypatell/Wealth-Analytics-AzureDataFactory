@@ -1,0 +1,86 @@
+{
+	"name": "DF_Load_Dim_Clients",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Stg_Clients",
+						"type": "DatasetReference"
+					},
+					"name": "SourceClients"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Dim_Client",
+						"type": "DatasetReference"
+					},
+					"name": "SinkClient"
+				}
+			],
+			"transformations": [
+				{
+					"name": "FilteredClients"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ClientID as string,",
+				"          ClientName as string,",
+				"          Segment as string,",
+				"          RiskProfile as string,",
+				"          PrimaryAdvisorID as string,",
+				"          ClientSince as string,",
+				"          Country as string,",
+				"          ClientTenureYears as integer,",
+				"          LoadDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceClients",
+				"SourceClients filter(!isNull(ClientID) && !isNull(ClientSince)) ~> FilteredClients",
+				"FilteredClients derive(ClientTenureYears = year(currentDate()) - year(toDate(ClientSince,'yyyy-MM-dd')),",
+				"          ClientSince = toDate(ClientSince,'yyyy-MM-dd')) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientKey as integer,",
+				"          ClientID as string,",
+				"          ClientName as string,",
+				"          Segment as string,",
+				"          RiskProfile as string,",
+				"          PrimaryAdvisorID as string,",
+				"          ClientSince as date,",
+				"          Country as string,",
+				"          ClientTenureYears as integer,",
+				"          CreatedDate as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          ClientID,",
+				"          ClientName,",
+				"          Segment,",
+				"          RiskProfile,",
+				"          PrimaryAdvisorID,",
+				"          ClientSince,",
+				"          Country,",
+				"          ClientTenureYears",
+				"     )) ~> SinkClient"
+			]
+		}
+	}
+}
