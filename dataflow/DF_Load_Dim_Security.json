@@ -3,11 +3,77 @@
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
-			"sources": [],
-			"sinks": [],
-			"transformations": [],
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Stg_Securities",
+						"type": "DatasetReference"
+					},
+					"name": "SourceSecurity"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Dim_Security",
+						"type": "DatasetReference"
+					},
+					"name": "SinkSecurity"
+				}
+			],
+			"transformations": [
+				{
+					"name": "AssetClassGroup"
+				}
+			],
 			"scriptLines": [
-				""
+				"source(output(",
+				"          SecurityID as string,",
+				"          Ticker as string,",
+				"          SecurityName as string,",
+				"          AssetClass as string,",
+				"          Sector as string,",
+				"          Currency as string,",
+				"          Region as string,",
+				"          LoadDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceSecurity",
+				"SourceSecurity derive(AssetClassGroup = iif(AssetClass == 'Equity', 'Growth',     iif(AssetClass == 'Bond', 'Fixed Income',         'Alternative'))) ~> AssetClassGroup",
+				"AssetClassGroup sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          SecurityKey as integer,",
+				"          SecurityID as string,",
+				"          Ticker as string,",
+				"          SecurityName as string,",
+				"          AssetClass as string,",
+				"          Sector as string,",
+				"          Currency as string,",
+				"          Region as string,",
+				"          AssetClassGroup as string,",
+				"          CreatedDate as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          SecurityID,",
+				"          Ticker,",
+				"          SecurityName,",
+				"          AssetClass,",
+				"          Sector,",
+				"          Currency,",
+				"          Region,",
+				"          AssetClassGroup",
+				"     )) ~> SinkSecurity"
 			]
 		}
 	}
