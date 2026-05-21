@@ -1,9 +1,9 @@
 {
-	"name": "PL_STG_Fact_Holdings",
+	"name": "Pl_Stg_Fact_Cashflow",
 	"properties": {
 		"activities": [
 			{
-				"name": "DF_Fact",
+				"name": "Data flow1",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "DF_Load_Fact_Holdings",
+						"referenceName": "DF_Load_Fact_Cashflow",
 						"type": "DataFlowReference"
 					},
 					"compute": {

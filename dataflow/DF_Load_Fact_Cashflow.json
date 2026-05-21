@@ -1,0 +1,134 @@
+{
+	"name": "DF_Load_Fact_Cashflow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Stg_Cashflows",
+						"type": "DatasetReference"
+					},
+					"name": "SourceCashflow"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Dim_Account",
+						"type": "DatasetReference"
+					},
+					"name": "sourceAccount"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Dim_Date",
+						"type": "DatasetReference"
+					},
+					"name": "sourceDate"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Fact_Cashflow",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "lookup1"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          CashflowID as string,",
+				"          AccountID as string,",
+				"          CashflowDate as string,",
+				"          Type as string,",
+				"          Amount as string,",
+				"          LoadDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceCashflow",
+				"source(output(",
+				"          AccountKey as integer,",
+				"          AccountID as string,",
+				"          ClientID as string,",
+				"          AccountType as string,",
+				"          OpenDate as date,",
+				"          BaseCurrency as string,",
+				"          Status as string,",
+				"          AccountAgeDays as integer,",
+				"          CreatedDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sourceAccount",
+				"source(output(",
+				"          DateKey as integer,",
+				"          FullDate as date,",
+				"          DayOfWeek as string,",
+				"          DayNumber as integer,",
+				"          Month as integer,",
+				"          MonthName as string,",
+				"          Quarter as integer,",
+				"          Year as integer,",
+				"          IsWeekend as boolean,",
+				"          IsMonthEnd as boolean",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sourceDate",
+				"sourceAccount, SourceCashflow lookup(sourceAccount@AccountID == SourceCashflow@AccountID,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup1",
+				"lookup1 select(mapColumn(",
+				"          AccountKey,",
+				"          CashflowID,",
+				"          CashflowDate,",
+				"          Type,",
+				"          Amount,",
+				"          LoadDate",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          CashflowKey as integer,",
+				"          CashflowID as string,",
+				"          AccountKey as integer,",
+				"          DateKey as integer,",
+				"          CashflowType as string,",
+				"          Amount as decimal(18,2),",
+				"          LoadDate as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          AccountKey,",
+				"          CashflowID,",
+				"          CashflowType = Type,",
+				"          Amount,",
+				"          LoadDate,",
+				"          DateKey = CashflowDate",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
