@@ -3,11 +3,128 @@
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
-			"sources": [],
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Stg_Holdings",
+						"type": "DatasetReference"
+					},
+					"name": "SourceHoldings"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Dim_Account",
+						"type": "DatasetReference"
+					},
+					"name": "SourceAccounts"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Dim_Security",
+						"type": "DatasetReference"
+					},
+					"name": "SourceSecurity"
+				}
+			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "DervideColumn"
+				},
+				{
+					"name": "LookupAccounts"
+				},
+				{
+					"name": "LookupSecurity"
+				},
+				{
+					"name": "select1"
+				}
+			],
 			"scriptLines": [
-				""
+				"source(output(",
+				"          AccountID as string,",
+				"          SecurityID as string,",
+				"          Quantity as string,",
+				"          ValuationDate as string,",
+				"          MarketValue as string,",
+				"          LoadDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceHoldings",
+				"source(output(",
+				"          AccountKey as integer,",
+				"          AccountID as string,",
+				"          ClientID as string,",
+				"          AccountType as string,",
+				"          OpenDate as date,",
+				"          BaseCurrency as string,",
+				"          Status as string,",
+				"          AccountAgeDays as integer,",
+				"          CreatedDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceAccounts",
+				"source(output(",
+				"          SecurityKey as integer,",
+				"          SecurityID as string,",
+				"          Ticker as string,",
+				"          SecurityName as string,",
+				"          AssetClass as string,",
+				"          Sector as string,",
+				"          Currency as string,",
+				"          Region as string,",
+				"          AssetClassGroup as string,",
+				"          CreatedDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceSecurity",
+				"SourceHoldings derive(DateKey = toInteger(toString(toDate(ValuationDate), 'yyyyMMdd')),",
+				"          LoadDate = currentTimestamp()) ~> DervideColumn",
+				"DervideColumn, SourceAccounts lookup(SourceHoldings@AccountID == SourceAccounts@AccountID,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupAccounts",
+				"LookupAccounts, SourceSecurity lookup(SourceHoldings@SecurityID == SourceSecurity@SecurityID,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupSecurity",
+				"LookupSecurity select(mapColumn(",
+				"          AccountID = SourceHoldings@AccountID,",
+				"          SecurityID = SourceHoldings@SecurityID,",
+				"          Quantity,",
+				"          ValuationDate,",
+				"          MarketValue,",
+				"          LoadDate,",
+				"          DateKey,",
+				"          AccountKey,",
+				"          AccountID = SourceAccounts@AccountID,",
+				"          ClientID,",
+				"          AccountType,",
+				"          OpenDate,",
+				"          BaseCurrency,",
+				"          Status,",
+				"          AccountAgeDays,",
+				"          CreatedDate = SourceAccounts@CreatedDate,",
+				"          SecurityKey,",
+				"          SecurityID = SourceSecurity@SecurityID,",
+				"          Ticker,",
+				"          SecurityName,",
+				"          AssetClass,",
+				"          Sector,",
+				"          Currency,",
+				"          Region,",
+				"          AssetClassGroup,",
+				"          CreatedDate = SourceSecurity@CreatedDate",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1"
 			]
 		}
 	}
