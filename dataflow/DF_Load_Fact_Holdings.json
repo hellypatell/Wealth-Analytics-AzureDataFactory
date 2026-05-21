@@ -26,7 +26,15 @@
 					"name": "SourceSecurity"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Fact_Holdings",
+						"type": "DatasetReference"
+					},
+					"name": "SinkHoldings"
+				}
+			],
 			"transformations": [
 				{
 					"name": "DervideColumn"
@@ -38,7 +46,10 @@
 					"name": "LookupSecurity"
 				},
 				{
-					"name": "select1"
+					"name": "Select"
+				},
+				{
+					"name": "AlterRow"
 				}
 			],
 			"scriptLines": [
@@ -99,32 +110,40 @@
 				"          AccountID = SourceHoldings@AccountID,",
 				"          SecurityID = SourceHoldings@SecurityID,",
 				"          Quantity,",
-				"          ValuationDate,",
 				"          MarketValue,",
 				"          LoadDate,",
-				"          DateKey,",
-				"          AccountKey,",
-				"          AccountID = SourceAccounts@AccountID,",
-				"          ClientID,",
-				"          AccountType,",
-				"          OpenDate,",
-				"          BaseCurrency,",
-				"          Status,",
-				"          AccountAgeDays,",
-				"          CreatedDate = SourceAccounts@CreatedDate,",
-				"          SecurityKey,",
-				"          SecurityID = SourceSecurity@SecurityID,",
-				"          Ticker,",
-				"          SecurityName,",
-				"          AssetClass,",
-				"          Sector,",
-				"          Currency,",
-				"          Region,",
-				"          AssetClassGroup,",
-				"          CreatedDate = SourceSecurity@CreatedDate",
+				"          DateKey",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1"
+				"     skipDuplicateMapOutputs: true) ~> Select",
+				"Select alterRow(insertIf(true())) ~> AlterRow",
+				"AlterRow sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          HoldingKey as integer,",
+				"          AccountKey as integer,",
+				"          SecurityKey as integer,",
+				"          DateKey as integer,",
+				"          Quantity as decimal(18,4),",
+				"          MarketValue as decimal(18,2),",
+				"          LoadDate as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          AccountKey = AccountID,",
+				"          SecurityKey = SecurityID,",
+				"          DateKey,",
+				"          Quantity,",
+				"          MarketValue,",
+				"          LoadDate",
+				"     )) ~> SinkHoldings"
 			]
 		}
 	}
