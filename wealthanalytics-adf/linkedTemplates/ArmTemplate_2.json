@@ -89,6 +89,421 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Load_Dim_Benchmark')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Stg_Benchmarks",
+								"type": "DatasetReference"
+							},
+							"name": "SourceBenchmarkStg"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Benchmark",
+								"type": "DatasetReference"
+							},
+							"name": "SinkBenchmark"
+						}
+					],
+					"transformations": [
+						{
+							"name": "AggBenchmarks"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          BenchmarkCode as string,",
+						"          Description as string,",
+						"          Currency as string,",
+						"          IndexValueDate as string,",
+						"          IndexValue as string,",
+						"          LoadDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourceBenchmarkStg",
+						"SourceBenchmarkStg aggregate(groupBy(BenchmarkCode,",
+						"          Description,",
+						"          Currency),",
+						"     BenchmarkCodeAgg = first(BenchmarkCode)) ~> AggBenchmarks",
+						"AggBenchmarks sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          BenchmarkKey as integer,",
+						"          BenchmarkCode as string,",
+						"          Description as string,",
+						"          Currency as string,",
+						"          CreatedDate as timestamp",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          BenchmarkCode,",
+						"          Description,",
+						"          Currency",
+						"     )) ~> SinkBenchmark"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Load_Dim_Clients')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Stg_Clients",
+								"type": "DatasetReference"
+							},
+							"name": "SourceClients"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Client",
+								"type": "DatasetReference"
+							},
+							"name": "SinkClient"
+						}
+					],
+					"transformations": [
+						{
+							"name": "FilteredClients"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          ClientID as string,",
+						"          ClientName as string,",
+						"          Segment as string,",
+						"          RiskProfile as string,",
+						"          PrimaryAdvisorID as string,",
+						"          ClientSince as string,",
+						"          Country as string,",
+						"          ClientTenureYears as integer,",
+						"          LoadDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourceClients",
+						"SourceClients filter(!isNull(ClientID) && !isNull(ClientSince)) ~> FilteredClients",
+						"FilteredClients derive(ClientTenureYears = year(currentDate()) - year(toDate(ClientSince,'yyyy-MM-dd')),",
+						"          ClientSince = toDate(ClientSince,'yyyy-MM-dd')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientKey as integer,",
+						"          ClientID as string,",
+						"          ClientName as string,",
+						"          Segment as string,",
+						"          RiskProfile as string,",
+						"          PrimaryAdvisorID as string,",
+						"          ClientSince as date,",
+						"          Country as string,",
+						"          ClientTenureYears as integer,",
+						"          CreatedDate as timestamp",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          ClientID,",
+						"          ClientName,",
+						"          Segment,",
+						"          RiskProfile,",
+						"          PrimaryAdvisorID,",
+						"          ClientSince,",
+						"          Country,",
+						"          ClientTenureYears",
+						"     )) ~> SinkClient"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Load_Dim_Security')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Stg_Securities",
+								"type": "DatasetReference"
+							},
+							"name": "SourceSecurity"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Security",
+								"type": "DatasetReference"
+							},
+							"name": "SinkSecurity"
+						}
+					],
+					"transformations": [
+						{
+							"name": "AssetClassGroup"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          SecurityID as string,",
+						"          Ticker as string,",
+						"          SecurityName as string,",
+						"          AssetClass as string,",
+						"          Sector as string,",
+						"          Currency as string,",
+						"          Region as string,",
+						"          LoadDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourceSecurity",
+						"SourceSecurity derive(AssetClassGroup = iif(AssetClass == 'Equity', 'Growth',     iif(AssetClass == 'Bond', 'Fixed Income',         'Alternative'))) ~> AssetClassGroup",
+						"AssetClassGroup sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          SecurityKey as integer,",
+						"          SecurityID as string,",
+						"          Ticker as string,",
+						"          SecurityName as string,",
+						"          AssetClass as string,",
+						"          Sector as string,",
+						"          Currency as string,",
+						"          Region as string,",
+						"          AssetClassGroup as string,",
+						"          CreatedDate as timestamp",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          SecurityID,",
+						"          Ticker,",
+						"          SecurityName,",
+						"          AssetClass,",
+						"          Sector,",
+						"          Currency,",
+						"          Region,",
+						"          AssetClassGroup",
+						"     )) ~> SinkSecurity"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PL_Staging_To_Dim')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DF_Accounts",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Load_Dim_Accounts",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceAccounts": {},
+									"SinkAccounts": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "DF_Advisor",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Load_Dim_Advisor",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceAdvisor": {},
+									"SinkAdvisor": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "DF_Benchmark",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Load_Dim_Benchmark",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceBenchmarkStg": {},
+									"SinkBenchmark": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "DF_Clients",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Load_Dim_Clients",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceClients": {},
+									"SinkClient": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "DF_Security",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Load_Dim_Security",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceSecurity": {},
+									"SinkSecurity": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_Load_Dim_Advisor')]",
+				"[concat(variables('factoryId'), '/dataflows/DF_Load_Dim_Benchmark')]",
+				"[concat(variables('factoryId'), '/dataflows/DF_Load_Dim_Clients')]",
+				"[concat(variables('factoryId'), '/dataflows/DF_Load_Dim_Security')]"
+			]
 		}
 	]
 }

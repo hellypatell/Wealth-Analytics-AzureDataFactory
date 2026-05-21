@@ -106,58 +106,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DS_CSV_Advisor')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_BlobStorage",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "CSV"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "Advisors.csv",
-						"container": "wealth-raw-data"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "AdvisorID",
-						"type": "String"
-					},
-					{
-						"name": "AdvisorName",
-						"type": "String"
-					},
-					{
-						"name": "Region",
-						"type": "String"
-					},
-					{
-						"name": "JoinDate",
-						"type": "String"
-					},
-					{
-						"name": "ExperienceYears",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_BlobStorage')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/DS_CSV_Accounts')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -205,6 +153,58 @@
 					},
 					{
 						"name": "Status",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_BlobStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_CSV_Advisor')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_BlobStorage",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "CSV"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Advisors.csv",
+						"container": "wealth-raw-data"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "AdvisorID",
+						"type": "String"
+					},
+					{
+						"name": "AdvisorName",
+						"type": "String"
+					},
+					{
+						"name": "Region",
+						"type": "String"
+					},
+					{
+						"name": "JoinDate",
+						"type": "String"
+					},
+					{
+						"name": "ExperienceYears",
 						"type": "String"
 					}
 				]
@@ -266,6 +266,58 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DS_CSV_Cashflows')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_BlobStorage",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "CSV"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Cashflows.csv",
+						"container": "wealth-raw-data"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "CashflowID",
+						"type": "String"
+					},
+					{
+						"name": "AccountID",
+						"type": "String"
+					},
+					{
+						"name": "CashflowDate",
+						"type": "String"
+					},
+					{
+						"name": "Type",
+						"type": "String"
+					},
+					{
+						"name": "Amount",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_BlobStorage')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DS_CSV_Clients')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -317,58 +369,6 @@
 					},
 					{
 						"name": "Country",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_BlobStorage')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DS_CSV_Cashflows')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_BlobStorage",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "CSV"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "Cashflows.csv",
-						"container": "wealth-raw-data"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "CashflowID",
-						"type": "String"
-					},
-					{
-						"name": "AccountID",
-						"type": "String"
-					},
-					{
-						"name": "CashflowDate",
-						"type": "String"
-					},
-					{
-						"name": "Type",
-						"type": "String"
-					},
-					{
-						"name": "Amount",
 						"type": "String"
 					}
 				]
@@ -714,20 +714,199 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DS_SQL_Stg_Clients')]",
+			"name": "[concat(parameters('factoryName'), '/DS_SQL_Dim_Account')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "LS_WealthStaging",
+					"referenceName": "LS_WealthDWH",
 					"type": "LinkedServiceReference"
 				},
 				"folder": {
-					"name": "Staging"
+					"name": "DWH"
 				},
 				"annotations": [],
 				"type": "AzureSqlTable",
 				"schema": [
+					{
+						"name": "AccountKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "AccountID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AccountType",
+						"type": "nvarchar"
+					},
+					{
+						"name": "OpenDate",
+						"type": "date"
+					},
+					{
+						"name": "BaseCurrency",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Status",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AccountAgeDays",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CreatedDate",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Dim_Account"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_WealthDWH')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_SQL_Dim_Advisor')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_WealthDWH",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DWH"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "AdvisorKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "AdvisorID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AdvisorName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region",
+						"type": "nvarchar"
+					},
+					{
+						"name": "JoinDate",
+						"type": "date"
+					},
+					{
+						"name": "ExperienceYears",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "SeniorityLevel",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CreatedDate",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Dim_Advisor"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_WealthDWH')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_SQL_Dim_Benchmark')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_WealthDWH",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DWH"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "BenchmarkKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "BenchmarkCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Description",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Currency",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CreatedDate",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Dim_Benchmark"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_WealthDWH')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_SQL_Dim_Client')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_WealthDWH",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DWH"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "ClientKey",
+						"type": "int",
+						"precision": 10
+					},
 					{
 						"name": "ClientID",
 						"type": "nvarchar"
@@ -750,7 +929,7 @@
 					},
 					{
 						"name": "ClientSince",
-						"type": "nvarchar"
+						"type": "date"
 					},
 					{
 						"name": "Country",
@@ -762,7 +941,7 @@
 						"precision": 10
 					},
 					{
-						"name": "LoadDate",
+						"name": "CreatedDate",
 						"type": "datetime",
 						"precision": 23,
 						"scale": 3
@@ -770,83 +949,103 @@
 				],
 				"typeProperties": {
 					"schema": "dbo",
-					"table": "Stg_Clients"
+					"table": "Dim_Client"
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_WealthStaging')]"
+				"[concat(variables('factoryId'), '/linkedServices/LS_WealthDWH')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DS_SQL_Stg_Accounts')]",
+			"name": "[concat(parameters('factoryName'), '/DS_SQL_Dim_Date')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "LS_WealthStaging",
+					"referenceName": "LS_WealthDWH",
 					"type": "LinkedServiceReference"
 				},
 				"folder": {
-					"name": "Staging"
+					"name": "DWH"
 				},
 				"annotations": [],
 				"type": "AzureSqlTable",
 				"schema": [
 					{
-						"name": "AccountID",
+						"name": "DateKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "FullDate",
+						"type": "date"
+					},
+					{
+						"name": "DayOfWeek",
 						"type": "nvarchar"
 					},
 					{
-						"name": "ClientID",
+						"name": "DayNumber",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Month",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MonthName",
 						"type": "nvarchar"
 					},
 					{
-						"name": "AccountType",
-						"type": "nvarchar"
+						"name": "Quarter",
+						"type": "int",
+						"precision": 10
 					},
 					{
-						"name": "OpenDate",
-						"type": "nvarchar"
+						"name": "Year",
+						"type": "int",
+						"precision": 10
 					},
 					{
-						"name": "BaseCurrency",
-						"type": "nvarchar"
+						"name": "IsWeekend",
+						"type": "bit"
 					},
 					{
-						"name": "Status",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LoadDate",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
+						"name": "IsMonthEnd",
+						"type": "bit"
 					}
 				],
 				"typeProperties": {
 					"schema": "dbo",
-					"table": "Stg_Accounts"
+					"table": "Dim_Date"
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_WealthStaging')]"
+				"[concat(variables('factoryId'), '/linkedServices/LS_WealthDWH')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DS_SQL_Stg_Securities')]",
+			"name": "[concat(parameters('factoryName'), '/DS_SQL_Dim_Security')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "LS_WealthStaging",
+					"referenceName": "LS_WealthDWH",
 					"type": "LinkedServiceReference"
 				},
 				"folder": {
-					"name": "Staging"
+					"name": "DWH"
 				},
 				"annotations": [],
 				"type": "AzureSqlTable",
 				"schema": [
+					{
+						"name": "SecurityKey",
+						"type": "int",
+						"precision": 10
+					},
 					{
 						"name": "SecurityID",
 						"type": "nvarchar"
@@ -876,7 +1075,11 @@
 						"type": "nvarchar"
 					},
 					{
-						"name": "LoadDate",
+						"name": "AssetClassGroup",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CreatedDate",
 						"type": "datetime",
 						"precision": 23,
 						"scale": 3
@@ -884,180 +1087,11 @@
 				],
 				"typeProperties": {
 					"schema": "dbo",
-					"table": "Stg_Security"
+					"table": "Dim_Security"
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_WealthStaging')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DS_SQL_Stg_Trades')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_WealthStaging",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Staging"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "TradeID",
-						"type": "nvarchar"
-					},
-					{
-						"name": "AccountID",
-						"type": "nvarchar"
-					},
-					{
-						"name": "SecurityID",
-						"type": "nvarchar"
-					},
-					{
-						"name": "TradeDate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "SettleDate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Side",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Price",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Quantity",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Amount",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LoadDate",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "Stg_Trades"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_WealthStaging')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DS_SQL_Stg_Holdings')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_WealthStaging",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Staging"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "AccountID",
-						"type": "nvarchar"
-					},
-					{
-						"name": "SecurityID",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Quantity",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ValuationDate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "MarketValue",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LoadDate",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "Stg_Holdings"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_WealthStaging')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DS_SQL_Stg_Cashflows')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_WealthStaging",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Staging"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "CashflowID",
-						"type": "nvarchar"
-					},
-					{
-						"name": "AccountID",
-						"type": "nvarchar"
-					},
-					{
-						"name": "CashflowDate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Type",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Amount",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LoadDate",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "Stg_Cashflows"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_WealthStaging')]"
+				"[concat(variables('factoryId'), '/linkedServices/LS_WealthDWH')]"
 			]
 		}
 	]
