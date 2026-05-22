@@ -1,5 +1,5 @@
 {
-	"name": "PL_Staging_To_Dim",
+	"name": "PL_Staging_To_DimTables",
 	"properties": {
 		"activities": [
 			{
