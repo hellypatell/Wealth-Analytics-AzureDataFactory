@@ -3126,6 +3126,80 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Fact_Fees')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_WealthDWH",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DWH"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "FeeKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "AccountKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "ClientKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "AdvisorKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "DateKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "FeeID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "FeeType",
+						"type": "nvarchar"
+					},
+					{
+						"name": "FeeCategory",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Amount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "AbsAmount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Fact_Fees"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_WealthDWH')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/HoldingsCSV')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -3793,6 +3867,203 @@
 				"[concat(variables('factoryId'), '/datasets/DS_SQL_Dim_Account')]",
 				"[concat(variables('factoryId'), '/datasets/DS_SQL_Dim_Date')]",
 				"[concat(variables('factoryId'), '/datasets/DS_SQL_Fact_Cashflow')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Load_Fact_Fees')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Stg_Fees",
+								"type": "DatasetReference"
+							},
+							"name": "SourceFeesStg"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Account",
+								"type": "DatasetReference"
+							},
+							"name": "SourceAccount"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Advisor",
+								"type": "DatasetReference"
+							},
+							"name": "SourceAdvisor"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Client",
+								"type": "DatasetReference"
+							},
+							"name": "SourceClient"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Fact_Fees",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DerivedFees"
+						},
+						{
+							"name": "FilterFees"
+						},
+						{
+							"name": "lookupAccountID"
+						},
+						{
+							"name": "lookupClient"
+						},
+						{
+							"name": "LookupAdvisor"
+						},
+						{
+							"name": "SelectCols"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          FeeID as string,",
+						"          AccountID as string,",
+						"          FeeDate as string,",
+						"          FeeType as string,",
+						"          Amount as string,",
+						"          LoadDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourceFeesStg",
+						"source(output(",
+						"          AccountKey as integer,",
+						"          AccountID as string,",
+						"          ClientID as string,",
+						"          AccountType as string,",
+						"          OpenDate as date,",
+						"          BaseCurrency as string,",
+						"          Status as string,",
+						"          AccountAgeDays as integer,",
+						"          CreatedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourceAccount",
+						"source(output(",
+						"          AdvisorKey as integer,",
+						"          AdvisorID as string,",
+						"          AdvisorName as string,",
+						"          Region as string,",
+						"          JoinDate as date,",
+						"          ExperienceYears as integer,",
+						"          SeniorityLevel as string,",
+						"          CreatedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourceAdvisor",
+						"source(output(",
+						"          ClientKey as integer,",
+						"          ClientID as string,",
+						"          ClientName as string,",
+						"          Segment as string,",
+						"          RiskProfile as string,",
+						"          PrimaryAdvisorID as string,",
+						"          ClientSince as date,",
+						"          Country as string,",
+						"          ClientTenureYears as integer,",
+						"          CreatedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourceClient",
+						"FilterFees derive(AbsAmount = abs(toDecimal(Amount, 18, 2)),",
+						"          FeeCategory = iif(upper(trim(FeeType)) == 'MANAGEMENT', 'Management', iif(upper(trim(FeeType)) == 'TRANSACTION', 'Transaction', iif(upper(trim(FeeType)) == 'CUSTODY', 'Custody', 'Other'))),",
+						"          DateKey = toInteger(toString(toDate(FeeDate,'yyyy-MM-dd'),'yyyyMMdd'))) ~> DerivedFees",
+						"SourceFeesStg filter(!isNull(AccountID) && !isNull(Amount) && !isNull(FeeDate)) ~> FilterFees",
+						"DerivedFees, SourceAccount lookup(SourceFeesStg@AccountID == SourceAccount@AccountID,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> lookupAccountID",
+						"lookupAccountID, SourceClient lookup(SourceAccount@ClientID == SourceClient@ClientID,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> lookupClient",
+						"lookupClient, SourceAdvisor lookup(PrimaryAdvisorID == AdvisorID,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> LookupAdvisor",
+						"LookupAdvisor select(mapColumn(",
+						"          FeeID,",
+						"          FeeType,",
+						"          Amount,",
+						"          AbsAmount,",
+						"          FeeCategory,",
+						"          AccountKey,",
+						"          ClientKey,",
+						"          AdvisorKey,",
+						"          DateKey",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectCols",
+						"SelectCols sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          FeeKey as integer,",
+						"          AccountKey as integer,",
+						"          ClientKey as integer,",
+						"          AdvisorKey as integer,",
+						"          DateKey as integer,",
+						"          FeeID as string,",
+						"          FeeType as string,",
+						"          FeeCategory as string,",
+						"          Amount as decimal(18,2),",
+						"          AbsAmount as decimal(18,2)",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          AccountKey,",
+						"          ClientKey,",
+						"          AdvisorKey,",
+						"          DateKey,",
+						"          FeeID,",
+						"          FeeType,",
+						"          FeeCategory,",
+						"          Amount,",
+						"          AbsAmount",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Stg_Fees')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Dim_Account')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Dim_Advisor')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Dim_Client')]",
+				"[concat(variables('factoryId'), '/datasets/Fact_Fees')]"
 			]
 		},
 		{
