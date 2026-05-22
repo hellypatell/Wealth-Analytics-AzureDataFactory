@@ -1626,6 +1626,200 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DF_Load_Fact_Trades')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Stg_Trades",
+								"type": "DatasetReference"
+							},
+							"name": "SourceTrades"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Account",
+								"type": "DatasetReference"
+							},
+							"name": "SourceAccount"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Security",
+								"type": "DatasetReference"
+							},
+							"name": "sourceSecurity"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Date",
+								"type": "DatasetReference"
+							},
+							"name": "SourceDate"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Fact_Trades",
+								"type": "DatasetReference"
+							},
+							"name": "SinkData"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "lookupAccount"
+						},
+						{
+							"name": "lookupSecurity"
+						},
+						{
+							"name": "lookupDate"
+						},
+						{
+							"name": "SelectCols"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          TradeID as string,",
+						"          AccountID as string,",
+						"          SecurityID as string,",
+						"          TradeDate as integer,",
+						"          SettleDate as integer,",
+						"          Side as string,",
+						"          Price as decimal(10,0),",
+						"          Quantity as decimal(10,0),",
+						"          Amount as decimal(10,0),",
+						"          LoadDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourceTrades",
+						"source(output(",
+						"          AccountKey as integer,",
+						"          AccountID as string,",
+						"          ClientID as string,",
+						"          AccountType as string,",
+						"          OpenDate as date,",
+						"          BaseCurrency as string,",
+						"          Status as string,",
+						"          AccountAgeDays as integer,",
+						"          CreatedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourceAccount",
+						"source(output(",
+						"          SecurityKey as integer,",
+						"          SecurityID as string,",
+						"          Ticker as string,",
+						"          SecurityName as string,",
+						"          AssetClass as string,",
+						"          Sector as string,",
+						"          Currency as string,",
+						"          Region as string,",
+						"          AssetClassGroup as string,",
+						"          CreatedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> sourceSecurity",
+						"source(output(",
+						"          DateKey as integer,",
+						"          FullDate as date,",
+						"          DayOfWeek as string,",
+						"          DayNumber as integer,",
+						"          Month as integer,",
+						"          MonthName as string,",
+						"          Quarter as integer,",
+						"          Year as integer,",
+						"          IsWeekend as boolean,",
+						"          IsMonthEnd as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourceDate",
+						"SourceTrades derive(TradeDateConverted = toDate(TradeDate, 'yyyy-MM-dd'),",
+						"          SettleDateConverted = toDate(SettleDate, 'yyyy-MM-dd')) ~> derivedColumn1",
+						"derivedColumn1, SourceAccount lookup(SourceTrades@AccountID == SourceAccount@AccountID,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> lookupAccount",
+						"lookupAccount, sourceSecurity lookup(SourceTrades@SecurityID == sourceSecurity@SecurityID,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> lookupSecurity",
+						"lookupSecurity, SourceDate lookup(TradeDateConverted == FullDate,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> lookupDate",
+						"lookupDate select(mapColumn(",
+						"          TradeID,",
+						"          TradeDate,",
+						"          SettleDate,",
+						"          Side,",
+						"          Price,",
+						"          Quantity,",
+						"          Amount,",
+						"          AccountKey,",
+						"          SecurityKey,",
+						"          DateKey",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectCols",
+						"SelectCols sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          TradeKey as integer,",
+						"          TradeID as string,",
+						"          AccountKey as integer,",
+						"          SecurityKey as integer,",
+						"          TradeDateKey as integer,",
+						"          SettleDateKey as integer,",
+						"          Side as string,",
+						"          Price as decimal(18,4),",
+						"          Quantity as decimal(18,4),",
+						"          Amount as decimal(18,2),",
+						"          LoadDate as timestamp",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          TradeID,",
+						"          AccountKey,",
+						"          SecurityKey,",
+						"          TradeDateKey = TradeDate,",
+						"          SettleDateKey = SettleDate,",
+						"          Side,",
+						"          Price,",
+						"          Quantity,",
+						"          Amount",
+						"     )) ~> SinkData"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/PL_STG_Fact_Holdings')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1671,6 +1865,55 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/DF_Load_Fact_Holdings')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PL_STG_Fact_Trades')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DF_Fact_Trades",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Load_Fact_Trades",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceTrades": {},
+									"SourceAccount": {},
+									"sourceSecurity": {},
+									"SourceDate": {},
+									"SinkData": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_Load_Fact_Trades')]"
 			]
 		},
 		{
