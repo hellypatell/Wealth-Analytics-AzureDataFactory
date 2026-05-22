@@ -33,7 +33,15 @@
 					"name": "SourceClient"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Fact_Fees",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "DerivedFees"
@@ -140,7 +148,40 @@
 				"          DateKey",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectCols"
+				"     skipDuplicateMapOutputs: true) ~> SelectCols",
+				"SelectCols sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          FeeKey as integer,",
+				"          AccountKey as integer,",
+				"          ClientKey as integer,",
+				"          AdvisorKey as integer,",
+				"          DateKey as integer,",
+				"          FeeID as string,",
+				"          FeeType as string,",
+				"          FeeCategory as string,",
+				"          Amount as decimal(18,2),",
+				"          AbsAmount as decimal(18,2)",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          AccountKey,",
+				"          ClientKey,",
+				"          AdvisorKey,",
+				"          DateKey,",
+				"          FeeID,",
+				"          FeeType,",
+				"          FeeCategory,",
+				"          Amount,",
+				"          AbsAmount",
+				"     )) ~> sink1"
 			]
 		}
 	}
