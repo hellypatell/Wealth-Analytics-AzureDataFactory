@@ -680,6 +680,54 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/PL_STG_Fact_Holdings')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DF_Fact",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Load_Fact_Holdings",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceHoldings": {},
+									"SourceAccounts": {},
+									"SourceSecurity": {},
+									"SinkHoldings": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_Load_Fact_Holdings')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/PL_Staging_To_Dim')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -847,6 +895,125 @@
 				"[concat(variables('factoryId'), '/dataflows/DF_Load_Dim_Benchmark')]",
 				"[concat(variables('factoryId'), '/dataflows/DF_Load_Dim_Clients')]",
 				"[concat(variables('factoryId'), '/dataflows/DF_Load_Dim_Security')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PL_Staging_To_Holdings')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Dim_Holdings",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "HoldingsCSV",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_SQL_Stg_Holdings",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/HoldingsCSV')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Stg_Holdings')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Pl_Stg_Fact_Cashflow')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Load_Fact_Cashflow",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceCashflow": {},
+									"sourceAccount": {},
+									"sourceDate": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_Load_Fact_Cashflow')]"
 			]
 		},
 		{
@@ -2559,6 +2726,76 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DS_SQL_Stg_Date')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_WealthStaging",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Staging"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "DateKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "FullDate",
+						"type": "date"
+					},
+					{
+						"name": "DayOfWeek",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DayNumber",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Month",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MonthName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Quarter",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "IsWeekend",
+						"type": "bit"
+					},
+					{
+						"name": "IsMonthEnd",
+						"type": "bit"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Stg_Date"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_WealthStaging')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DS_SQL_Stg_Fees')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -2886,6 +3123,58 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/LS_WealthStaging')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/HoldingsCSV')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_BlobStorage",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "CSV"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Holdings_Fixed.csv",
+						"container": "wealth-raw-data"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "AccountID",
+						"type": "String"
+					},
+					{
+						"name": "SecurityID",
+						"type": "String"
+					},
+					{
+						"name": "Quantity",
+						"type": "String"
+					},
+					{
+						"name": "ValuationDate",
+						"type": "String"
+					},
+					{
+						"name": "MarketValue",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_BlobStorage')]"
 			]
 		},
 		{
@@ -3362,6 +3651,148 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/DS_SQL_Stg_Securities')]",
 				"[concat(variables('factoryId'), '/datasets/DS_SQL_Dim_Security')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Load_Fact_Cashflow')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Stg_Cashflows",
+								"type": "DatasetReference"
+							},
+							"name": "SourceCashflow"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Account",
+								"type": "DatasetReference"
+							},
+							"name": "sourceAccount"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Date",
+								"type": "DatasetReference"
+							},
+							"name": "sourceDate"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Fact_Cashflow",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "lookup1"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          CashflowID as string,",
+						"          AccountID as string,",
+						"          CashflowDate as string,",
+						"          Type as string,",
+						"          Amount as string,",
+						"          LoadDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourceCashflow",
+						"source(output(",
+						"          AccountKey as integer,",
+						"          AccountID as string,",
+						"          ClientID as string,",
+						"          AccountType as string,",
+						"          OpenDate as date,",
+						"          BaseCurrency as string,",
+						"          Status as string,",
+						"          AccountAgeDays as integer,",
+						"          CreatedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> sourceAccount",
+						"source(output(",
+						"          DateKey as integer,",
+						"          FullDate as date,",
+						"          DayOfWeek as string,",
+						"          DayNumber as integer,",
+						"          Month as integer,",
+						"          MonthName as string,",
+						"          Quarter as integer,",
+						"          Year as integer,",
+						"          IsWeekend as boolean,",
+						"          IsMonthEnd as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> sourceDate",
+						"sourceAccount, SourceCashflow lookup(sourceAccount@AccountID == SourceCashflow@AccountID,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> lookup1",
+						"lookup1 select(mapColumn(",
+						"          AccountKey,",
+						"          CashflowID,",
+						"          CashflowDate,",
+						"          Type,",
+						"          Amount,",
+						"          LoadDate",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          CashflowKey as integer,",
+						"          CashflowID as string,",
+						"          AccountKey as integer,",
+						"          DateKey as integer,",
+						"          CashflowType as string,",
+						"          Amount as decimal(18,2),",
+						"          LoadDate as timestamp",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          AccountKey,",
+						"          CashflowID,",
+						"          CashflowType = Type,",
+						"          Amount,",
+						"          LoadDate,",
+						"          DateKey = CashflowDate",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Stg_Cashflows')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Dim_Account')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Dim_Date')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Fact_Cashflow')]"
 			]
 		},
 		{
