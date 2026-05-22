@@ -680,7 +680,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/PL_STG_Fact_Holdings')]",
+			"name": "[concat(parameters('factoryName'), '/PL_Fact_Holdings')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -728,7 +728,58 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/PL_STG_Fact_Trades')]",
+			"name": "[concat(parameters('factoryName'), '/PL_Fact_Performance')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DF_Performance",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Load_Fact_Performance",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourcePerformance": {},
+									"sourceAccount": {},
+									"sourceAdvisor": {},
+									"sourceBenchmark": {},
+									"sourceClient": {},
+									"sourceDate": {},
+									"sinkPerformance": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_Load_Fact_Performance')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PL_Fact_Trades')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -4271,6 +4322,237 @@
 				"[concat(variables('factoryId'), '/datasets/DS_SQL_Dim_Account')]",
 				"[concat(variables('factoryId'), '/datasets/DS_SQL_Dim_Security')]",
 				"[concat(variables('factoryId'), '/datasets/DS_SQL_Fact_Holdings')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Load_Fact_Performance')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Stg_Performance",
+								"type": "DatasetReference"
+							},
+							"name": "sourcePerformance"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Account",
+								"type": "DatasetReference"
+							},
+							"name": "sourceAccount"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Advisor",
+								"type": "DatasetReference"
+							},
+							"name": "sourceAdvisor"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Benchmark",
+								"type": "DatasetReference"
+							},
+							"name": "sourceBenchmark"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Client",
+								"type": "DatasetReference"
+							},
+							"name": "sourceClient"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Date",
+								"type": "DatasetReference"
+							},
+							"name": "sourceDate"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Fact_Performance",
+								"type": "DatasetReference"
+							},
+							"name": "sinkPerformance"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "lookupAccount"
+						},
+						{
+							"name": "lookupDate"
+						},
+						{
+							"name": "lookupBenchmark"
+						},
+						{
+							"name": "selectCol"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          AccountID as string,",
+						"          MonthStart as string,",
+						"          ReturnPct as string,",
+						"          BenchmarkCode as string,",
+						"          BenchmarkReturnPct as string,",
+						"          ExcessReturnPct as string,",
+						"          CumulativeReturnPct as string,",
+						"          LoadDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> sourcePerformance",
+						"source(output(",
+						"          AccountKey as integer,",
+						"          AccountID as string,",
+						"          ClientID as string,",
+						"          AccountType as string,",
+						"          OpenDate as date,",
+						"          BaseCurrency as string,",
+						"          Status as string,",
+						"          AccountAgeDays as integer,",
+						"          CreatedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> sourceAccount",
+						"source(output(",
+						"          AdvisorKey as integer,",
+						"          AdvisorID as string,",
+						"          AdvisorName as string,",
+						"          Region as string,",
+						"          JoinDate as date,",
+						"          ExperienceYears as integer,",
+						"          SeniorityLevel as string,",
+						"          CreatedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> sourceAdvisor",
+						"source(output(",
+						"          BenchmarkKey as integer,",
+						"          BenchmarkCode as string,",
+						"          Description as string,",
+						"          Currency as string,",
+						"          CreatedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> sourceBenchmark",
+						"source(output(",
+						"          ClientKey as integer,",
+						"          ClientID as string,",
+						"          ClientName as string,",
+						"          Segment as string,",
+						"          RiskProfile as string,",
+						"          PrimaryAdvisorID as string,",
+						"          ClientSince as date,",
+						"          Country as string,",
+						"          ClientTenureYears as integer,",
+						"          CreatedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> sourceClient",
+						"source(output(",
+						"          DateKey as integer,",
+						"          FullDate as date,",
+						"          DayOfWeek as string,",
+						"          DayNumber as integer,",
+						"          Month as integer,",
+						"          MonthName as string,",
+						"          Quarter as integer,",
+						"          Year as integer,",
+						"          IsWeekend as boolean,",
+						"          IsMonthEnd as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> sourceDate",
+						"sourcePerformance derive(MonthStartConverted = toDate(MonthStart, 'yyyy-MM-dd')) ~> derivedColumn1",
+						"derivedColumn1, sourceAccount lookup(sourcePerformance@AccountID == sourceAccount@AccountID,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> lookupAccount",
+						"lookupAccount, sourceDate lookup(MonthStartConverted == FullDate,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> lookupDate",
+						"lookupDate, sourceBenchmark lookup(sourcePerformance@BenchmarkCode == sourceBenchmark@BenchmarkCode,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> lookupBenchmark",
+						"lookupBenchmark select(mapColumn(",
+						"          ReturnPct,",
+						"          BenchmarkReturnPct,",
+						"          ExcessReturnPct,",
+						"          CumulativeReturnPct,",
+						"          AccountKey,",
+						"          BenchmarkKey,",
+						"          DateKey",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectCol",
+						"selectCol sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          PerformanceKey as integer,",
+						"          AccountKey as integer,",
+						"          BenchmarkKey as integer,",
+						"          DateKey as integer,",
+						"          ReturnPct as decimal(10,6),",
+						"          BenchmarkReturnPct as decimal(10,6),",
+						"          ExcessReturnPct as decimal(10,6),",
+						"          CumulativeReturnPct as decimal(10,6),",
+						"          LoadDate as timestamp",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          AccountKey,",
+						"          BenchmarkKey,",
+						"          DateKey,",
+						"          ReturnPct,",
+						"          BenchmarkReturnPct,",
+						"          ExcessReturnPct,",
+						"          CumulativeReturnPct",
+						"     )) ~> sinkPerformance"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Stg_Performance')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Dim_Account')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Dim_Advisor')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Dim_Benchmark')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Dim_Client')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Dim_Date')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_Fact_Performance')]"
 			]
 		},
 		{
