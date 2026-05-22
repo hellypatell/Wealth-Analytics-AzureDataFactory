@@ -1,0 +1,147 @@
+{
+	"name": "DF_Load_Fact_Fees",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Stg_Fees",
+						"type": "DatasetReference"
+					},
+					"name": "SourceFeesStg"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Dim_Account",
+						"type": "DatasetReference"
+					},
+					"name": "SourceAccount"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Dim_Advisor",
+						"type": "DatasetReference"
+					},
+					"name": "SourceAdvisor"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_SQL_Dim_Client",
+						"type": "DatasetReference"
+					},
+					"name": "SourceClient"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "DerivedFees"
+				},
+				{
+					"name": "FilterFees"
+				},
+				{
+					"name": "lookupAccountID"
+				},
+				{
+					"name": "lookupClient"
+				},
+				{
+					"name": "LookupAdvisor"
+				},
+				{
+					"name": "SelectCols"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          FeeID as string,",
+				"          AccountID as string,",
+				"          FeeDate as string,",
+				"          FeeType as string,",
+				"          Amount as string,",
+				"          LoadDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceFeesStg",
+				"source(output(",
+				"          AccountKey as integer,",
+				"          AccountID as string,",
+				"          ClientID as string,",
+				"          AccountType as string,",
+				"          OpenDate as date,",
+				"          BaseCurrency as string,",
+				"          Status as string,",
+				"          AccountAgeDays as integer,",
+				"          CreatedDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceAccount",
+				"source(output(",
+				"          AdvisorKey as integer,",
+				"          AdvisorID as string,",
+				"          AdvisorName as string,",
+				"          Region as string,",
+				"          JoinDate as date,",
+				"          ExperienceYears as integer,",
+				"          SeniorityLevel as string,",
+				"          CreatedDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceAdvisor",
+				"source(output(",
+				"          ClientKey as integer,",
+				"          ClientID as string,",
+				"          ClientName as string,",
+				"          Segment as string,",
+				"          RiskProfile as string,",
+				"          PrimaryAdvisorID as string,",
+				"          ClientSince as date,",
+				"          Country as string,",
+				"          ClientTenureYears as integer,",
+				"          CreatedDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceClient",
+				"FilterFees derive(AbsAmount = abs(toDecimal(Amount, 18, 2)),",
+				"          FeeCategory = iif(upper(trim(FeeType)) == 'MANAGEMENT', 'Management', iif(upper(trim(FeeType)) == 'TRANSACTION', 'Transaction', iif(upper(trim(FeeType)) == 'CUSTODY', 'Custody', 'Other'))),",
+				"          DateKey = toInteger(toString(toDate(FeeDate,'yyyy-MM-dd'),'yyyyMMdd'))) ~> DerivedFees",
+				"SourceFeesStg filter(!isNull(AccountID) && !isNull(Amount) && !isNull(FeeDate)) ~> FilterFees",
+				"DerivedFees, SourceAccount lookup(SourceFeesStg@AccountID == SourceAccount@AccountID,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookupAccountID",
+				"lookupAccountID, SourceClient lookup(SourceAccount@ClientID == SourceClient@ClientID,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookupClient",
+				"lookupClient, SourceAdvisor lookup(PrimaryAdvisorID == AdvisorID,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupAdvisor",
+				"LookupAdvisor select(mapColumn(",
+				"          FeeID,",
+				"          FeeType,",
+				"          Amount,",
+				"          AbsAmount,",
+				"          FeeCategory,",
+				"          AccountKey,",
+				"          ClientKey,",
+				"          AdvisorKey,",
+				"          DateKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectCols"
+			]
+		}
+	}
+}
