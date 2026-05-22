@@ -1,9 +1,9 @@
 {
-	"name": "PL_Fact_Trades",
+	"name": "PL_Fact_Performance",
 	"properties": {
 		"activities": [
 			{
-				"name": "DF_Fact_Trades",
+				"name": "DF_Performance",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "DF_Load_Fact_Trades",
+						"referenceName": "DF_Load_Fact_Performance",
 						"type": "DataFlowReference"
 					},
 					"compute": {
