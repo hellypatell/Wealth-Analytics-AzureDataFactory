@@ -1779,6 +1779,145 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DF_Load_Fact_Price')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Stg_Prices",
+								"type": "DatasetReference"
+							},
+							"name": "SourcePrice"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Security",
+								"type": "DatasetReference"
+							},
+							"name": "SourceSecurity"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Dim_Date",
+								"type": "DatasetReference"
+							},
+							"name": "SourceDate"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_SQL_Fact_Prices",
+								"type": "DatasetReference"
+							},
+							"name": "SinkData"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DCConvertDate"
+						},
+						{
+							"name": "LookupSecurity"
+						},
+						{
+							"name": "LookupDate"
+						},
+						{
+							"name": "SelectCol"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          SecurityID as string,",
+						"          PriceDate as string,",
+						"          ClosePrice as decimal(10,0),",
+						"          LoadDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourcePrice",
+						"source(output(",
+						"          SecurityKey as integer,",
+						"          SecurityID as string,",
+						"          Ticker as string,",
+						"          SecurityName as string,",
+						"          AssetClass as string,",
+						"          Sector as string,",
+						"          Currency as string,",
+						"          Region as string,",
+						"          AssetClassGroup as string,",
+						"          CreatedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourceSecurity",
+						"source(output(",
+						"          DateKey as integer,",
+						"          FullDate as date,",
+						"          DayOfWeek as string,",
+						"          DayNumber as integer,",
+						"          Month as integer,",
+						"          MonthName as string,",
+						"          Quarter as integer,",
+						"          Year as integer,",
+						"          IsWeekend as boolean,",
+						"          IsMonthEnd as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SourceDate",
+						"SourcePrice derive(PriceDateConverted = toDate(PriceDate, 'yyyy-MM-dd')) ~> DCConvertDate",
+						"DCConvertDate, SourceSecurity lookup(SourcePrice@SecurityID == SourceSecurity@SecurityID,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> LookupSecurity",
+						"LookupSecurity, SourceDate lookup(PriceDateConverted == FullDate,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> LookupDate",
+						"LookupDate select(mapColumn(",
+						"          SecurityKey,",
+						"          DateKey,",
+						"          ClosePrice",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectCol",
+						"SelectCol sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          PriceKey as integer,",
+						"          SecurityKey as integer,",
+						"          DateKey as integer,",
+						"          ClosePrice as decimal(18,4),",
+						"          LoadDate as timestamp",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          SecurityKey,",
+						"          DateKey,",
+						"          ClosePrice",
+						"     )) ~> SinkData"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DF_Load_Fact_Trades')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -2118,6 +2257,54 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/DF_Load_Fact_Trades')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PL_Load_Fact_Price')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DF_Price",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Load_Fact_Price",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourcePrice": {},
+									"SourceSecurity": {},
+									"SourceDate": {},
+									"SinkData": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_Load_Fact_Price')]"
 			]
 		},
 		{
